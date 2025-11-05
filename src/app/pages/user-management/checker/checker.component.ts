@@ -56,6 +56,8 @@ export class CheckerComponent implements OnInit {
       UserID: [""],
       Status: [""],
       _UserIDList: [""],
+      activeInactiveRemark: [""],
+      ApprovalPurpose: [""],
       approveremarks: new FormControl('', [Validators.required]),
       rejectremarks: new FormControl('', [Validators.required]),
       bulkapproveremarks: new FormControl('', [Validators.required]),
@@ -141,6 +143,11 @@ export class CheckerComponent implements OnInit {
       { field: 'location', header: 'Location', index: 3 },
       { field: 'branchcode', header: 'Branch Code', index: 3 },
       { field: 'roleName', header: 'Role', index: 3 },
+      { field: 'CreatedBy', header: 'Created By', index: 3 },
+      { field: 'ModifiedBy', header: 'Modified By', index: 3 },
+      { field: 'createdDate', header: 'Created DateTime', index: 3 },
+      { field: 'modifiedDate', header: 'Modified DateTime', index: 3 },
+      { field: 'ApprovalPurpose', header: 'Approval Purpose', index: 3 },
     ];
 
     tableData.forEach((el, index) => {
@@ -158,7 +165,16 @@ export class CheckerComponent implements OnInit {
         'roleName': el.roleName,
         'AccountTypeID': el.AccountTypeID,
         'CreatedBy': el.CreatedBy,
-        'isCheckboxDisabled': el.CreatedBy === this.UserCreatedBy,
+        'CreatedById': el.CreatedById,
+        'ModifiedById': el.ModifiedById,
+        'activeInactiveBy': el.activeInactiveBy,
+        'ApprovalPurpose': el.ApprovalPurpose,
+        'ModifiedBy': el.ModifiedBy,
+        'createdDate': el.createdDate,
+        'activeInactiveRemark': el.activeInactiveRemark,
+        'modifiedDate': el.modifiedDate,
+        'isCheckboxDisabled': el.CreatedById === this.UserCreatedBy || el.ModifiedById === this.UserCreatedBy || el.activeInactiveBy === this.UserCreatedBy
+                              || el.ApprovalPurpose === 'Activation Approval' || el.ApprovalPurpose === 'In-Activation Approval',
       });
 
     });
@@ -201,6 +217,7 @@ export class CheckerComponent implements OnInit {
       _UserIDList: '',
       bulkrejectremarks: '',
       bulkapproveremarks: '',
+      ApprovalPurpose: '',
       User_Token: localStorage.getItem('User_Token'),
       CreatedBy: localStorage.getItem('UserID')
     });
@@ -230,7 +247,7 @@ export class CheckerComponent implements OnInit {
 
     const apiUrl = this._global.baseAPIUrl + "Admin/CheckerApproval";
     this._onlineExamService.postData(this.AddUserForm.value, apiUrl).subscribe((data) => {
-      if (data === 'User has been successfully Approved.') {
+      if (data === 'User has been successfully Approved.' || data === 'User activation/inactivation request has been approved.') {
         this.ShowMessage(data);
         this.OnReset();
         this.geUserList();
@@ -259,7 +276,7 @@ export class CheckerComponent implements OnInit {
 
     const apiUrl = this._global.baseAPIUrl + "Admin/CheckerBulkApproval";
     this._onlineExamService.postData(this.AddUserForm.value, apiUrl).subscribe((data) => {
-      if (data === 'User has been successfully Approved.') {
+      if (data === 'User has been successfully Approved.' || data === 'User activation/inactivation request has been approved.') {
         this.ShowMessage(data);
         this.OnReset();
         this.geUserList();
@@ -276,12 +293,21 @@ export class CheckerComponent implements OnInit {
   editEmployee(template: TemplateRef<any>, value: any) {
     this.AddUserForm.patchValue({
       UserID: value.id,
+      ApprovalPurpose: value.ApprovalPurpose,
+    });
+    this.modalRef = this.modalService.show(template);
+  }
+
+  Activation(template: TemplateRef<any>, value: any) {
+    this.AddUserForm.patchValue({
+      UserID: value.id,
+      activeInactiveRemark : value.activeInactiveRemark
     });
     this.modalRef = this.modalService.show(template);
   }
 
   BulkAction(template: TemplateRef<any>) {
-    debugger;
+    
     if (!this.selectedRowsUser || this.selectedRowsUser.length === 0) {
       this.ShowErrormessage("Please select at least one User");
       return;
@@ -291,8 +317,15 @@ export class CheckerComponent implements OnInit {
     for (let j = 0; j < this.selectedRowsUser.length; j++) {
       UserIDList += this.selectedRowsUser[j] + ',';
     }
+    
+    let ApprovalPurposeList = this.formattedData
+    .filter((row: any) => this.selectedRowsUser.includes(row.id)) 
+    .map((row: any) => row.ApprovalPurpose)
+    .join(",");
+
     this.AddUserForm.patchValue({
       _UserIDList: UserIDList,
+      ApprovalPurpose: ApprovalPurposeList
     });
     this.modalRef = this.modalService.show(template);
   }

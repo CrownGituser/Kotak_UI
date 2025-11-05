@@ -177,14 +177,14 @@ export class AddRoleComponent implements OnInit {
     if (__pageRights.length <= 0) {
       this.ShowErrormessage("Please select rights ");
     }
-
+    
     this.AddRoleForm.patchValue({
       CreatedBy: localStorage.getItem('UserID'),
       User_Token: localStorage.getItem('User_Token'),
       _PageIDAndChk: this._PageIDAndChk,
       pageRights: __pageRights
     });
-
+    
     const apiUrl = this._global.baseAPIUrl + 'Role/Create';
     const rights = this.AddRoleForm.value._PageRight;
     this._onlineExamService.postData(this.AddRoleForm.value, apiUrl)

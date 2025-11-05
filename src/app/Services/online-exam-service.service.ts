@@ -25,19 +25,17 @@ export class OnlineExamServiceService {
     private _global: Listboxclass
 
   ) { }
+
   private handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      console.error('An error occurred:', error.error.message);
+    if (error.status === 0) {
+      console.error('An error occurred:', error.error);
     } else {
       console.error(
-        "Backend returned code ${error.status}, " +
-        "body was: ${error.error}");
-
+        `Backend returned code ${error.status}, body was: `, error.error);
     }
-
-    //alert(error.error.message);
-    return throwError('Something bad happened; please try again later.');
+    return throwError(error);
   }
+
   getAllData(apiUrl: string): Observable<any> {
     return this.http.get(apiUrl).pipe(
       map(this.extractData));
@@ -70,8 +68,6 @@ export class OnlineExamServiceService {
 
   private extractData(res: Response) {
     let body = res;
-    //console.log(res);
-
     return body || {};
   }
 
@@ -112,33 +108,26 @@ export class OnlineExamServiceService {
   }
 
   public downloadDoc(apiUrl: string): Observable<any> {
-    // let url = this.apiUrl + "api/myApi/download/" + Id;
     return this.http.get(apiUrl, { responseType: "blob" });
   }
 
   DownloadpostData(data, apiUrl): Observable<any> {
     return this.http.get(apiUrl, { responseType: "blob" });
   }
-
+  
   public BulkDownload(data, apiUrl): Observable<any> {
     return this.http.post(apiUrl, data, { responseType: "blob" })
 
   }
 
   downloadExcelFile(url: string, fileName: any): void {
-    debugger;
- // this.http.get("assets/temp/B1000077Barcode.xlsx", { responseType: 'blob' })
-   this.http.get(url, { responseType: 'blob' })
+    this.http.get(url, { responseType: 'blob' })
       .subscribe((data) => {
-        debugger;
         const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
         link.download = fileName + 'Barcode.xlsx';
-       // link.download=fileName + 'Barcode.xlsx'; 
         link.click();
       });
   }
-
-
 }

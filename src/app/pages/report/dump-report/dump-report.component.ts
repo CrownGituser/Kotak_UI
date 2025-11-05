@@ -45,6 +45,7 @@ _ColNameList = ["batch_no","appl_apac", "product","location","sub_lcoation","par
   maxDate = new Date();
   first = 0;
   rows = 10;
+minToDate: any;
 
   constructor(
 

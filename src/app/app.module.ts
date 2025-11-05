@@ -30,6 +30,13 @@ import { ForgetPasswordComponent } from './pages/forget-password/forget-password
 // import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { NgxCaptchaModule } from 'ngx-captcha';
 import { TableModule } from "angular-bootstrap-md";
+import { OtpComponent } from './pages/otp/otp.component';
+import { NgOtpInputModule } from 'ng-otp-input';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { MessageService } from 'primeng/api';
+import { UnauthorizedComponent } from './pages/unauthorized/unauthorized.component';
+
+
 
 
 
@@ -44,16 +51,18 @@ import { TableModule } from "angular-bootstrap-md";
     BsDropdownModule.forRoot(),
     AppRoutingModule,
     ToastrModule.forRoot(),
+    ModalModule.forRoot(),
     CollapseModule.forRoot(),
     TagInputModule,
     PresentationModule,
     MatProgressSpinnerModule,
     // NgMultiSelectDropDownModule.forRoot(),
     NgxCaptchaModule,
-    TableModule    
+    TableModule,
+    NgOtpInputModule    
   ],
-  declarations: [AppComponent, AdminLayoutComponent, AuthLayoutComponent,LoginNewComponent, ForgetPasswordComponent],
-  providers: [AuthGuardService, Listboxclass, Globalconstants, { provide: HTTP_INTERCEPTORS, useClass: HttpRequestInterceptor, multi: true }],
+  declarations: [AppComponent, AdminLayoutComponent, AuthLayoutComponent,LoginNewComponent, ForgetPasswordComponent, OtpComponent, UnauthorizedComponent],
+  providers: [AuthGuardService, Listboxclass, Globalconstants, { provide: HTTP_INTERCEPTORS, useClass: HttpRequestInterceptor, multi: true }, MessageService ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

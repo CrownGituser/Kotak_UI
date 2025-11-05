@@ -10,6 +10,9 @@ import { LoginNewComponent } from './pages/login-new/login-new.component';
 import { ForbiddenComponent } from './pages/forbidden/forbidden.component';
 import { ForgetPasswordComponent } from "./pages/forget-password/forget-password.component";
 import { AuthGuardService } from "./Services/auth-guard.service";
+import { OtpComponent } from './pages/otp/otp.component';
+import { UnauthorizedComponent } from "./pages/unauthorized/unauthorized.component";
+import { IpGuardService } from "./Services/ip.guard";
 
 // import { CVTeamComponent } from './pages/twf/';
 
@@ -22,15 +25,27 @@ const routes: Routes = [
   },
   {
     path: "Login",
-    component: LoginNewComponent
+    component: LoginNewComponent,
+    canActivate: [IpGuardService]
+  },
+  {
+    path: "unauthorized",
+    component: UnauthorizedComponent
+  },
+  {
+    path: "otp",
+    component: OtpComponent,
+    canActivate: [IpGuardService]
   },
   {
     path: "forgot-password",
-    component: ForgetPasswordComponent
+    component: ForgetPasswordComponent,
+    canActivate: [IpGuardService]
   },
   {
     path: "Forbidden",
-    component: ForbiddenComponent
+    component: ForbiddenComponent,
+    canActivate: [IpGuardService]
   },
   {
     path: "",
@@ -92,7 +107,7 @@ const routes: Routes = [
         loadChildren: () => import('./pages/upload/upload.module').then(m => m.UploadModule),
         canActivate: [AuthGuardService]
       },
-      
+
       {
         path: "search",
         loadChildren: () => import('./pages/search/search.module').then(m => m.SearchModule),
@@ -174,4 +189,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

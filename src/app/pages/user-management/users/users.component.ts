@@ -49,7 +49,7 @@ export class UsersComponent implements OnInit {
       id: [""],
       firstname: new FormControl('', [Validators.required]),
       lastname: new FormControl('', [Validators.required]),
-      userid: ["", [Validators.required]],
+      userid: ["", [Validators.required, Validators.pattern(/^[a-zA-Z0-9.]+$/)]],
       empid: ["", [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+$/)]],
       pwd: [""], //, [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/)]
       confirmPass: [""], //, Validators.required
@@ -59,6 +59,7 @@ export class UsersComponent implements OnInit {
       branchcode: new FormControl('', [Validators.required]),
       activeInactiveRemark: [""],
       sysRoleID: ["", Validators.required],
+      UserType: ["", Validators.required],
       Remarks: [""],
       UserCreatedBy: [""],
       creationDate: [""],
@@ -67,13 +68,18 @@ export class UsersComponent implements OnInit {
       CheckerReviewBy: [""],
       CheckerReviewDate: [""],
       checkerReviewDate: [""],
+      ModifiedBy: [""],
+      modifiedDate: [""],
+      modifiedTime: [""],
       checkerReviewTime: [""],
       ReviewerRemark: [""],
       activeInactiveViewRemark: [""],
       Status: [""],
-      UserType: [0], //, Validators.required
       User_Token: localStorage.getItem('User_Token'),
       CreatedBy: localStorage.getItem('UserID'),
+      ActiveInactiveBy: [""],
+      ActiveInactiveDate: [""],
+      ActiveInactiveTime: [""]
     }, {
       validator: this.ConfirmedValidator('pwd', 'confirmPass')
     });
@@ -162,14 +168,15 @@ export class UsersComponent implements OnInit {
       { field: 'srNo', header: "Sr No", index: 1 },
       { field: 'firstname', header: 'First Name', index: 3 },
       { field: 'lastname', header: 'Last Name', index: 3 },
-      { field: 'userid', header: 'User id', index: 2 },
-      { field: 'empid', header: 'Employee id', index: 2 },
-      { field: 'email', header: 'E mail', index: 3 },
+      { field: 'userid', header: 'User Id', index: 2 },
+      { field: 'empid', header: 'Employee Id', index: 2 },
+      { field: 'email', header: 'E-mail', index: 3 },
       { field: 'mobile', header: 'Mobile', index: 3 },
       { field: 'location', header: 'Location', index: 3 },
       { field: 'branchcode', header: 'Branch Code', index: 3 },
       { field: 'roleName', header: 'Role', index: 3 },
       { field: 'LastLoginDatetime', header: 'Last Login Date', index: 3 },
+      { field: 'UserType', header: 'User Type', index: 3 },
     ];
 
     tableData.forEach((el, index) => {
@@ -186,9 +193,16 @@ export class UsersComponent implements OnInit {
         'branchcode': el.branchcode,
         'roleName': el.roleName,
         'Status': el.Status,
+        'UserType': el.UserType,
         'LastLoginDatetime': el.LastLoginDatetime,
         'AccountTypeID': el.AccountTypeID,
-        'ISACTIVE': el.IsActive == "Y" ? "Active" : "In-Active",
+        'ISACTIVE':
+          (el.ApprovalPurpose === "Activation Approval" || el.ApprovalPurpose === "In-Activation Approval")
+            ? "Pending For Approval"
+            : el.IsActive === "Y"
+              ? "Active"
+              : "In-Active",
+        // 'ISACTIVE': el.IsActive == "Y" ? "Active" : "In-Active",
         'checked': el.IsActive === "Y" ? false : true,
       });
 
@@ -267,6 +281,7 @@ export class UsersComponent implements OnInit {
       location: '',
       branchcode: '',
       sysRoleID: '',
+      UserType: '',
       Remarks: '',
       id: '',
       activeInactiveRemark: ''
@@ -331,8 +346,6 @@ export class UsersComponent implements OnInit {
       this.ShowErrormessage('You cannot modify your own details.');
       return;
     }
-
-    console.log("value", value);
     const apiUrl = this._global.baseAPIUrl + "Admin/GetDetails?ID=" + value.id + "&user_Token=" + localStorage.getItem('User_Token');
     this._onlineExamService.getAllData(apiUrl).subscribe((data: any) => {
       var that = this;
@@ -350,12 +363,13 @@ export class UsersComponent implements OnInit {
         location: that._SingleUser.location,
         branchcode: that._SingleUser.branchcode,
         sysRoleID: that._SingleUser.sysRoleID,
+        UserType: that._SingleUser.UserType,
         Remarks: that._SingleUser.remarks,
       })
     });
     this.AddUserForm.controls['userid'].disable();
     this.AddUserForm.controls['empid'].disable();
-    // this.AddUserForm.controls['email'].disable();
+    this.AddUserForm.controls['email'].disable();
     this.modalRef = this.modalService.show(template);
   }
 
@@ -418,6 +432,11 @@ export class UsersComponent implements OnInit {
       return;
     }
 
+    if (id.id == localStorage.getItem('UserID')) {
+      this.ShowErrormessage("You cannot take action on your own profile.");
+      return;
+    }
+
     if (id !== localStorage.getItem("UserID")) {
       const swalOptions: any = {
         title: "Are you sure?",
@@ -447,11 +466,11 @@ export class UsersComponent implements OnInit {
             activeInactiveRemark: result.value
           });
 
-          const apiUrl = this._global.baseAPIUrl + "Admin/ActiveInactive";
+          const apiUrl = this._global.baseAPIUrl + "Admin/ActiveInactiveRequest";
           this._onlineExamService.postData(this.AddUserForm.value, apiUrl).subscribe((data) => {
             swal.fire({
-              title: temp + "d !",
-              text: "User has been " + temp + "d !",
+              title: "Requested !",
+              text: "Request sent to Checker for approval !",
               type: "success",
               buttonsStyling: false,
               confirmButtonClass: "btn successbtn",
@@ -484,6 +503,7 @@ export class UsersComponent implements OnInit {
       location: '',
       branchcode: '',
       sysRoleID: '',
+      UserType: '',
       Remarks: '',
       id: ''
     })
@@ -549,6 +569,9 @@ export class UsersComponent implements OnInit {
           CheckerReviewBy: data.CheckerReviewBy,
           checkerReviewDate: data.checkerReviewDate,
           checkerReviewTime: data.checkerReviewTime,
+          ModifiedBy: data.ModifiedBy,
+          modifiedDate: data.modifiedDate,
+          modifiedTime: data.modifiedTime,
           LastLoginDatetime: data.LastLoginDatetime,
           Status: data.Status,
           Role: data.Role,
@@ -558,7 +581,10 @@ export class UsersComponent implements OnInit {
           location: data.location,
           sysRoleID: data.sysRoleID,
           ReviewerRemark: data.ReviewerRemark,
-          activeInactiveViewRemark: data.activeInactiveRemark
+          activeInactiveViewRemark: data.activeInactiveRemark,
+          ActiveInactiveBy: data.ActiveInactiveBy,
+          ActiveInactiveDate: data.ActiveInactiveDate,
+          ActiveInactiveTime: data.ActiveInactiveTime
         });
         this.modalRef = this.modalService.show(template);
       }

@@ -38,4 +38,13 @@ export class LoadingService {
       // }, 2000);
     }
   }
+  manualLoading(loading: boolean): void {
+    if (loading) {
+      this.loadingSub.next(true);
+    } else {
+      if (this.loadingMap.size === 0) {
+        this.loadingSub.next(false);
+      }
+    }
+  }
 }
