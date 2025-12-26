@@ -369,7 +369,7 @@ export class UsersComponent implements OnInit {
     });
     this.AddUserForm.controls['userid'].disable();
     this.AddUserForm.controls['empid'].disable();
-    this.AddUserForm.controls['email'].disable();
+    // this.AddUserForm.controls['email'].disable();
     this.modalRef = this.modalService.show(template);
   }
 
@@ -489,7 +489,7 @@ export class UsersComponent implements OnInit {
   addUser(template: TemplateRef<any>) {
     this.AddUserForm.controls['userid'].enable();
     this.AddUserForm.controls['empid'].enable();
-    this.AddUserForm.controls['email'].enable();
+    // this.AddUserForm.controls['email'].enable();
 
     this.AddUserForm.patchValue({
       firstname: '',
